@@ -1,43 +1,55 @@
 import React, { Component } from 'react';
+import TransitionGroup from 'react-transition-group/TransitionGroup';
+import CSSTransition from 'react-transition-group/CSSTransition';
 
 import './List.css';
 
 class List extends Component {
     state = {
-        items: [1, 2, 3]
+        items: [
+            {id: 100, number: 1},
+            {id: 101, number: 2},
+            {id: 102, number: 3},
+            {id: 103, number: 4},
+        ]
     }
 
     addItemHandler = () => {
-        this.setState((prevState) => {
-            return {
-                items: prevState.items.concat(prevState.items.length + 1)
-            };
-        });
+        const newItems = [...this.state.items]
+        const lastItemFound = newItems[newItems.length-1]
+        newItems.push({
+            id: lastItemFound ? lastItemFound.id + 1 : 100,
+            number: lastItemFound ? lastItemFound.number + 1 : 1
+        })
+
+        this.setState({items: newItems})
+
     }
 
-    removeItemHandler = (selIndex) => {
+    removeItemHandler = (selItem) => {
         this.setState((prevState) => {
             return {
-                items: prevState.items.filter((item, index) => index !== selIndex)
+                items: prevState.items.filter((item, index) => item.id !== selItem)
             };
         });
     }
 
     render () {
         const listItems = this.state.items.map( (item, index) => (
-            <li 
-                key={index}
-                className="ListItem" 
-                onClick={() => this.removeItemHandler(index)}>{item}</li>
+            <CSSTransition key={item.id} timeout={300} classNames='fade'>
+                <li 
+                    className="ListItem" 
+                    onClick={() => this.removeItemHandler(item.id)}>{item.number}</li>
+            </CSSTransition>
         ) );
 
         return (
             <div>
                 <button className="Button" onClick={this.addItemHandler}>Add Item</button>
                 <p>Click Item to Remove.</p>
-                <ul className="List">
+                <TransitionGroup component='ul' className='List'>
                     {listItems}
-                </ul>
+                </TransitionGroup>
             </div>
         );
     }
